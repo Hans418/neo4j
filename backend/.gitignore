@@ -1,0 +1,8 @@
+
+node_modules/
+.pnpm-store/
+dist/
+.env
+*.log
+neo4j_data/
+neo4j_logs/
