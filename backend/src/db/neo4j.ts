@@ -1,6 +1,6 @@
 import neo4j, { Driver, Session, RecordShape } from 'neo4j-driver'
 
-let driver: Driver
+let driver: Driver | null = null
 
 export const getDriver = (): Driver => {
   if (!driver) {
@@ -31,5 +31,6 @@ export const runQuery = async <T extends RecordShape>(
 export const closeDriver = async () => {
   if (driver) {
     await driver.close()
+    driver = null
   }
 }

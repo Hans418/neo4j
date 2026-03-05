@@ -523,8 +523,6 @@ const seed = async () => {
     }
 }
 
-seed()
-
 // Spustit samostatně pro přidání aktuálních dat:
 // Funkce pro přidání transakcí pro aktuální měsíc
 export const seedCurrentMonth = async () => {
@@ -602,4 +600,13 @@ export const seedCurrentMonth = async () => {
     }
 }
 
-seedCurrentMonth()
+    const runSeeds = async () => {
+      try {
+        await seed()
+        await seedCurrentMonth()
+      } catch (err) {
+        console.error('❌ Seed proces selhal:', err)
+      }
+    }
+
+    runSeeds()
