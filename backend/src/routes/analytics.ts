@@ -36,8 +36,8 @@ router.get('/cashflow', async (req: Request, res: Response) => {
   }
 
   const expenses = Array.from(expenseMap.entries())
-    .map(([category, amount]) => ({ category, amount, percentage: totalIncome > 0 ? Math.round(amount / totalIncome * 1000) / 10 : 0 }))
-    .sort((a, b) => b.amount - a.amount)
+      .map(([category, amount]) => ({ category, amount, percentage: totalIncome > 0 ? Math.round(amount / totalIncome * 1000) / 10 : 0 }))
+      .sort((a, b) => b.amount - a.amount)
 
   res.json({ month, income, totalIncome, expenses, totalExpenses, netCashflow: totalIncome - totalExpenses, savingsRate: totalIncome > 0 ? Math.round((totalIncome - totalExpenses) / totalIncome * 1000) / 1000 : 0 })
 })
@@ -78,8 +78,8 @@ router.get('/cashflow-breakdown', async (req: Request, res: Response) => {
   }
 
   const categories = Array.from(parentMap.values())
-    .map(cat => ({ ...cat, percentage: grandTotal > 0 ? Math.round(cat.amount / grandTotal * 1000) / 10 : 0 }))
-    .sort((a, b) => b.amount - a.amount)
+      .map(cat => ({ ...cat, percentage: grandTotal > 0 ? Math.round(cat.amount / grandTotal * 1000) / 10 : 0 }))
+      .sort((a, b) => b.amount - a.amount)
 
   res.json({ month, totalExpenses: grandTotal, categories })
 })
@@ -242,7 +242,7 @@ router.get('/year-in-review', async (req: Request, res: Response) => {
     const type   = r.get('type') as string
     const amount = toNumber(r.get('amount'))
     const cat    = r.get('catName') as string | null
-    const month  = r.get('month') as string
+    const month  = String(r.get('month') ?? '')
     if (!byMonth.has(month)) byMonth.set(month, { income: 0, expenses: 0 })
     if (type === 'income') { totalIncome += amount; byMonth.get(month)!.income += amount }
     else if (type === 'expense') { totalExpenses += amount; byMonth.get(month)!.expenses += amount; byCat.set(cat ?? 'Ostatní', (byCat.get(cat ?? 'Ostatní') ?? 0) + amount) }
@@ -255,7 +255,7 @@ router.get('/year-in-review', async (req: Request, res: Response) => {
     netSavings: totalIncome - totalExpenses,
     savingsRate: totalIncome > 0 ? Math.round((totalIncome - totalExpenses) / totalIncome * 1000) / 10 : 0,
     topExpenseCategories: Array.from(byCat.entries()).map(([category, amount]) => ({ category, amount })).sort((a, b) => b.amount - a.amount).slice(0, 5),
-    monthlyBreakdown: Array.from(byMonth.entries()).map(([month, data]) => ({ month, ...data })).sort((a, b) => a.month.localeCompare(b.month))
+    monthlyBreakdown: Array.from(byMonth.entries()).map(([month, data]) => ({ month, ...data })).sort((a, b) => String(a.month).localeCompare(String(b.month)))
   })
 })
 

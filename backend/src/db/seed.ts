@@ -524,3 +524,82 @@ const seed = async () => {
 }
 
 seed()
+
+// Spustit samostatně pro přidání aktuálních dat:
+// Funkce pro přidání transakcí pro aktuální měsíc
+export const seedCurrentMonth = async () => {
+    const driver = getDriver()
+    const session = driver.session()
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const prefix = `${year}-${month}`
+
+    try {
+        await session.run(`
+      MATCH (acc1:Account {id: 'acc-001'})
+      MATCH (mAlbert:Merchant  {id: 'm-albert'})
+      MATCH (mSushibar:Merchant{id: 'm-sushibar'})
+      MATCH (mNetflix:Merchant {id: 'm-netflix'})
+      MATCH (mSpotify:Merchant {id: 'm-spotify'})
+      MATCH (mDisney:Merchant  {id: 'm-disney'})
+      MATCH (mNajemne:Merchant {id: 'm-najemne'})
+      MATCH (mHolmes:Merchant  {id: 'm-holmes'})
+      MATCH (mShell:Merchant   {id: 'm-shell'})
+      MATCH (catPotraviny:Category {id: 'cat-potraviny'})
+      MATCH (catRestaurace:Category{id: 'cat-restaurace'})
+      MATCH (catStreaming:Category {id: 'cat-streaming'})
+      MATCH (catBydleni:Category   {id: 'cat-bydleni'})
+      MATCH (catSport:Category     {id: 'cat-sport'})
+      MATCH (catAuto:Category      {id: 'cat-auto'})
+      MATCH (catPrijmy:Category    {id: 'cat-prijmy'})
+
+      CREATE (t1:Transaction { id: $id1, date: $d1, amount: 62000, description: 'Výplata', type: 'income', status: 'completed' })
+      CREATE (t1)-[:FROM]->(acc1) CREATE (t1)-[:CATEGORIZED_AS {confidence: 1.0}]->(catPrijmy)
+
+      CREATE (t2:Transaction { id: $id2, date: $d2, amount: 14500, description: 'Nájem', type: 'expense', status: 'completed' })
+      CREATE (t2)-[:FROM]->(acc1) CREATE (t2)-[:SPENT_AT]->(mNajemne) CREATE (t2)-[:CATEGORIZED_AS {confidence: 1.0}]->(catBydleni)
+
+      CREATE (t3:Transaction { id: $id3, date: $d3, amount: 756, description: 'Albert nákup', type: 'expense', status: 'completed' })
+      CREATE (t3)-[:FROM]->(acc1) CREATE (t3)-[:SPENT_AT]->(mAlbert) CREATE (t3)-[:CATEGORIZED_AS {confidence: 0.98}]->(catPotraviny)
+
+      CREATE (t4:Transaction { id: $id4, date: $d4, amount: 490, description: 'Sushi oběd', type: 'expense', status: 'completed' })
+      CREATE (t4)-[:FROM]->(acc1) CREATE (t4)-[:SPENT_AT]->(mSushibar) CREATE (t4)-[:CATEGORIZED_AS {confidence: 0.95}]->(catRestaurace)
+
+      CREATE (t5:Transaction { id: $id5, date: $d5, amount: 199, description: 'Netflix', type: 'expense', status: 'completed' })
+      CREATE (t5)-[:FROM]->(acc1) CREATE (t5)-[:SPENT_AT]->(mNetflix) CREATE (t5)-[:CATEGORIZED_AS {confidence: 1.0}]->(catStreaming)
+
+      CREATE (t6:Transaction { id: $id6, date: $d6, amount: 159, description: 'Spotify', type: 'expense', status: 'completed' })
+      CREATE (t6)-[:FROM]->(acc1) CREATE (t6)-[:SPENT_AT]->(mSpotify) CREATE (t6)-[:CATEGORIZED_AS {confidence: 1.0}]->(catStreaming)
+
+      CREATE (t7:Transaction { id: $id7, date: $d7, amount: 199, description: 'Disney+', type: 'expense', status: 'completed' })
+      CREATE (t7)-[:FROM]->(acc1) CREATE (t7)-[:SPENT_AT]->(mDisney) CREATE (t7)-[:CATEGORIZED_AS {confidence: 1.0}]->(catStreaming)
+
+      CREATE (t8:Transaction { id: $id8, date: $d8, amount: 990, description: 'Holmes Place', type: 'expense', status: 'completed' })
+      CREATE (t8)-[:FROM]->(acc1) CREATE (t8)-[:SPENT_AT]->(mHolmes) CREATE (t8)-[:CATEGORIZED_AS {confidence: 1.0}]->(catSport)
+
+      CREATE (t9:Transaction { id: $id9, date: $d9, amount: 1200, description: 'Shell benzín', type: 'expense', status: 'completed' })
+      CREATE (t9)-[:FROM]->(acc1) CREATE (t9)-[:SPENT_AT]->(mShell) CREATE (t9)-[:CATEGORIZED_AS {confidence: 0.97}]->(catAuto)
+
+      CREATE (t10:Transaction { id: $id10, date: $d10, amount: 12000, description: 'Freelance faktura', type: 'income', status: 'completed' })
+      CREATE (t10)-[:FROM]->(acc1) CREATE (t10)-[:CATEGORIZED_AS {confidence: 1.0}]->(catPrijmy)
+    `, {
+            id1: `tx-cur-001`, d1: `${prefix}-01`,
+            id2: `tx-cur-002`, d2: `${prefix}-02`,
+            id3: `tx-cur-003`, d3: `${prefix}-05`,
+            id4: `tx-cur-004`, d4: `${prefix}-07`,
+            id5: `tx-cur-005`, d5: `${prefix}-05`,
+            id6: `tx-cur-006`, d6: `${prefix}-05`,
+            id7: `tx-cur-007`, d7: `${prefix}-05`,
+            id8: `tx-cur-008`, d8: `${prefix}-01`,
+            id9: `tx-cur-009`, d9: `${prefix}-10`,
+            id10:`tx-cur-010`, d10:`${prefix}-15`,
+        })
+        console.log(`✅ Přidána data pro ${prefix}`)
+    } finally {
+        await session.close()
+        await closeDriver()
+    }
+}
+
+seedCurrentMonth()

@@ -19,13 +19,14 @@ router.get('/', async (req: Request, res: Response) => {
   const records = await runQuery(`
     MATCH (t:Transaction)-[:FROM]->(a:Account)<-[:HAS]-(u:User {id: 'user-001'})
     OPTIONAL MATCH (t)-[:CATEGORIZED_AS]->(c:Category)
+    OPTIONAL MATCH (parentCat:Category)-[:PARENT_OF]->(c)
     OPTIONAL MATCH (t)-[:SPENT_AT]->(m:Merchant)
-    WITH t, a, c, m
+    WITH t, a, c, parentCat, m
     WHERE ($startDate IS NULL OR t.date >= $startDate)
       AND ($endDate   IS NULL OR t.date <= $endDate)
       AND ($account   IS NULL OR a.id = $account)
       AND ($type      IS NULL OR t.type = $type)
-      AND ($category  IS NULL OR c.id = $category)
+      AND ($category  IS NULL OR c.id = $category OR parentCat.id = $category)
     RETURN t, a.id AS accountId, c.name AS categoryName, c.id AS categoryId,
            c.color AS categoryColor, m.name AS merchantName
     ORDER BY t.date DESC
